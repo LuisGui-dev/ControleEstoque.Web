@@ -1,13 +1,22 @@
-﻿using System.Web.Mvc;
+﻿using System.Collections.Generic;
+using System.Web.Mvc;
+using ControleEstoque.Models;
 
 namespace ControleEstoque.Controllers
 {
     public class CadastroController : Controller
     {
+        private static List<GrupoProdutoModel> _listaGrupoProduto = new List<GrupoProdutoModel>()
+        {
+            new GrupoProdutoModel() { Id = 1, Nome = "livros", Ativo = true },
+            new GrupoProdutoModel() { Id = 2, Nome = "Mouses", Ativo = true },
+            new GrupoProdutoModel() { Id = 3, Nome = "Monitores", Ativo = false },
+        };
+        
         [Authorize]
         public ActionResult GrupoProduto()
         {
-            return View();
+            return View(_listaGrupoProduto);
         }
         
         [Authorize]
