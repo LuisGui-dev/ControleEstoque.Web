@@ -7,35 +7,25 @@ namespace ControleEstoque.Controllers
     public class ContaController : Controller
     {
         [AllowAnonymous]
-        public ActionResult Login(string returUrl)
+        public ActionResult Login()
         {
-            ViewBag.ReturnUrl = returUrl;
             return View();
         }
 
         [HttpPost]
-        public ActionResult Login(LoginViewModel login, string returnUrl)
+        [AllowAnonymous]
+        public ActionResult Login(LoginViewModel login)
         {
-            if (!ModelState.IsValid)
-            {
-                return View(login);
-            }
+            var achou = UsuarioModel.ValidarUsuario(login.Usuario, login.Senha);
 
-            var achou = login.Usuario == "guilherme" && login.Senha == "123";
-            if (achou)
+            if (ModelState.IsValid && achou)
             {
                 FormsAuthentication.SetAuthCookie(login.Usuario, login.LembrarMe);
-                if (!Url.IsLocalUrl(returnUrl))
-                {
-                    RedirectToAction("Index", "Home");
-                }
-                else
-                {
-                    return Redirect(returnUrl);
-                }
+                return RedirectToAction("Index", "Home");
             }
-
-            return View(returnUrl);
+            
+            ModelState.AddModelError("", "Login inválido.");
+            return View(login);
         }
 
         [HttpPost]
