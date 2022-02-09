@@ -1,4 +1,5 @@
-﻿using System.Data.SqlClient;
+﻿using System.Configuration;
+using System.Data.SqlClient;
 
 namespace ControleEstoque.Models
 {
@@ -9,8 +10,7 @@ namespace ControleEstoque.Models
             var ret = false;
             using (var conexao = new SqlConnection())
             {
-                conexao.ConnectionString =
-                    "Data Source=DESKTOP-LISRUQV;Initial Catalog=controle-estoque; User Id=sa; Password=lg301091";
+                conexao.ConnectionString = ConfigurationManager.ConnectionStrings["principal"].ConnectionString;
                 conexao.Open();
                 using (var commando = new SqlCommand())
                 {
