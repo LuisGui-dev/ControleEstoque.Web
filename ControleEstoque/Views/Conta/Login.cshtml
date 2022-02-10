@@ -8,7 +8,7 @@
     </div>
     <div class="row">
         <section id="loginForm">
-            @using (Html.BeginForm("Login", "Conta", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+            @using (Html.BeginForm("Login", "Conta", new {ReturnUrl = ViewBag.ReturnUrl}, FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
             {
                 @Html.ValidationSummary(true, "", new { @class = "text-danger" })
                 <div class="form-group">
