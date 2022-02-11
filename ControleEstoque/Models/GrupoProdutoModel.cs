@@ -16,7 +16,7 @@ namespace ControleEstoque.Models
 
         public bool Ativo { get; set; }
 
-        public static List<GrupoProdutoModel> RecuperarLista()
+        public static List<GrupoProdutoModel> RecuperarLista(int pagina, int tamPagina)
         {
             var ret = new List<GrupoProdutoModel>();
 
@@ -26,8 +26,13 @@ namespace ControleEstoque.Models
                 conexao.Open();
                 using (var commando = new SqlCommand())
                 {
+                    var pos = (pagina - 1) * tamPagina;
+                    
                     commando.Connection = conexao;
-                    commando.CommandText = "select * from grupo_produto  order by nome";
+                    commando.CommandText = string.Format(
+                        "select * from grupo_produto  order by nome offset {0} rows fetch next {1} rows only",
+                        pos > 0 ? pos - 1 : 0, tamPagina);
+                    
                     var reader = commando.ExecuteReader();
                     while (reader.Read())
                     {
@@ -38,6 +43,25 @@ namespace ControleEstoque.Models
                             Ativo = (bool)reader["ativo"]
                         });
                     }
+                }
+            }
+
+            return ret;
+        }
+        
+        public static int RecuperarQuantidade()
+        {
+            var ret = 0;
+
+            using (var conexao = new SqlConnection())
+            {
+                conexao.ConnectionString = ConfigurationManager.ConnectionStrings["principal"].ConnectionString;
+                conexao.Open();
+                using (var comando = new SqlCommand())
+                {
+                    comando.Connection = conexao;
+                    comando.CommandText = "select count(*) from grupo_produto";
+                    ret = (int)comando.ExecuteScalar();
                 }
             }
 

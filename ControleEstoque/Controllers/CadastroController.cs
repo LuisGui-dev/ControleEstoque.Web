@@ -8,10 +8,12 @@ namespace ControleEstoque.Controllers
 {
     public class CadastroController : Controller
     {
+        private const int _quantMaxLinhasPorPagina = 5;
+
         #region Usuários
 
         private const string _senhaPadrao = "{##%!!3***}";
-        
+
         [Authorize]
         public ActionResult Usuario()
         {
@@ -57,6 +59,7 @@ namespace ControleEstoque.Controllers
                     {
                         model.Senha = "";
                     }
+
                     var id = model.Salvar();
                     if (id > 0)
                     {
@@ -75,21 +78,42 @@ namespace ControleEstoque.Controllers
 
             return Json(new { Resultado = resultado, Mensagens = mensagens, IdSalvo = idSalvo });
         }
-        
+
         #endregion
-        
+
         #region Grupos de produtos
-        
+
         [Authorize]
         public ActionResult GrupoProduto()
         {
-            return View(GrupoProdutoModel.RecuperarLista());
+            ViewBag.ListaTamPagina =
+                new SelectList(new int[] { _quantMaxLinhasPorPagina, 10, 15, 20 }, _quantMaxLinhasPorPagina);
+            ViewBag.QuantMaxLinhasPorPagina = _quantMaxLinhasPorPagina;
+            ViewBag.PaginaAtual = 1;
+
+            var lista = GrupoProdutoModel.RecuperarLista(ViewBag.PaginaAtual, _quantMaxLinhasPorPagina);
+            var quant = GrupoProdutoModel.RecuperarQuantidade();
+
+            var difQuantPaginas = quant % ViewBag.QuantMaxLinhasPorPagina > 0 ? 1 : 0;
+            ViewBag.QuantPaginas = quant / ViewBag.QuantMaxLinhasPorPagina + difQuantPaginas;
+
+            return View(lista);
         }
 
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public ActionResult RecuperarGrupoProduto(int id)
+        public JsonResult GrupoProdutoPagina(int pagina, int tamPag)
+        {
+            var lista = GrupoProdutoModel.RecuperarLista(pagina, tamPag);
+
+            return Json(lista);
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public JsonResult RecuperarGrupoProduto(int id)
         {
             return Json(GrupoProdutoModel.RecuperarPeloId(id));
         }
@@ -97,7 +121,7 @@ namespace ControleEstoque.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public ActionResult ExcluirGrupoProduto(int id)
+        public JsonResult ExcluirGrupoProduto(int id)
         {
             return Json(GrupoProdutoModel.ExcluirPeloId(id));
         }
@@ -105,7 +129,7 @@ namespace ControleEstoque.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public ActionResult SalvarGrupoProduto(GrupoProdutoModel model)
+        public JsonResult SalvarGrupoProduto(GrupoProdutoModel model)
         {
             var resultado = "OK";
             var mensagens = new List<string>();
@@ -138,7 +162,7 @@ namespace ControleEstoque.Controllers
 
             return Json(new { Resultado = resultado, Mensagens = mensagens, IdSalvo = idSalvo });
         }
-        
+
         #endregion
 
         [Authorize]
@@ -188,7 +212,7 @@ namespace ControleEstoque.Controllers
         {
             return View();
         }
-        
+
         [Authorize]
         public ActionResult Fornecedor()
         {
