@@ -117,6 +117,8 @@
         <Compile Include="App_Start\FilterConfig.cs" />
         <Compile Include="App_Start\RouteConfig.cs" />
         <Compile Include="Controllers\CadastroController.cs" />
+        <Compile Include="Controllers\Cadastro\CadGrupoProdutoController.cs" />
+        <Compile Include="Controllers\Cadastro\CadUsuarioController.cs" />
         <Compile Include="Controllers\ContaController.cs" />
         <Compile Include="Controllers\GraficoController.cs" />
         <Compile Include="Controllers\HomeController.cs" />
@@ -139,6 +141,8 @@
         <Content Include="Content\bootstrap-theme.min.css" />
         <Content Include="Content\bootstrap.css" />
         <Content Include="Content\bootstrap.min.css" />
+        <Content Include="Content\Cadastro\GrupoProduto.css" />
+        <Content Include="Content\Cadastro\Usuario.css" />
         <Content Include="favicon.ico" />
         <Content Include="fonts\glyphicons-halflings-regular.svg" />
         <Content Include="Global.asax" />
@@ -151,6 +155,9 @@
         <Content Include="Scripts\bootstrap.js" />
         <Content Include="Scripts\bootstrap.min.js" />
         <None Include="Scripts\jquery-3.3.1.intellisense.js" />
+        <Content Include="Scripts\Cadastro\CadBasejs.js" />
+        <Content Include="Scripts\Cadastro\GrupoProduto.js" />
+        <Content Include="Scripts\Cadastro\Usuario.js" />
         <Content Include="Scripts\jquery-3.3.1.js" />
         <Content Include="Scripts\jquery-3.3.1.min.js" />
         <Content Include="Scripts\jquery-3.3.1.slim.js" />
@@ -164,14 +171,14 @@
         <Content Include="Views\Cadastro\Cidade.cshtml" />
         <Content Include="Views\Cadastro\Estado.cshtml" />
         <Content Include="Views\Cadastro\Fornecedor.cshtml" />
-        <Content Include="Views\Cadastro\GrupoProduto.cshtml" />
         <Content Include="Views\Cadastro\LocalProduto.cshtml" />
         <Content Include="Views\Cadastro\MarcaProduto.cshtml" />
         <Content Include="Views\Cadastro\Pais.cshtml" />
         <Content Include="Views\Cadastro\PerfilUsuario.cshtml" />
         <Content Include="Views\Cadastro\Produto.cshtml" />
         <Content Include="Views\Cadastro\UnidadeMedida.cshtml" />
-        <Content Include="Views\Cadastro\Usuario.cshtml" />
+        <Content Include="Views\CadGrupoProduto\Index.cshtml" />
+        <Content Include="Views\CadUsuario\Index.cshtml" />
         <Content Include="Views\Conta\Login.cshtml" />
         <Content Include="Views\Grafico\EntradaSaida.cshtml" />
         <Content Include="Views\Grafico\PerdaMes.cshtml" />
@@ -181,6 +188,7 @@
         <Content Include="Views\Operacao\SaidaProduto.cshtml" />
         <Content Include="Views\Relatorio\PosicaoEstoque.cshtml" />
         <Content Include="Views\Relatorio\Ressuprimento.cshtml" />
+        <Content Include="Views\Shared\_Cadastro.cshtml" />
         <Content Include="Web.config" />
         <Content Include="Web.Debug.config">
             <DependentUpon>Web.config</DependentUpon>
