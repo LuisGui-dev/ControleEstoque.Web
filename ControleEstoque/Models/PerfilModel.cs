@@ -3,48 +3,80 @@ using System.ComponentModel.DataAnnotations;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using ControleEstoque.Helpers;
 
 namespace ControleEstoque.Models
 {
-    public class UsuarioModel
+    public class PerfilModel
     {
         public int Id { get; set; }
 
-        [Required(ErrorMessage = "Infome o login")]
-        public string login { get; set; }
-
-        [Required(ErrorMessage = "Informe a senha")]
-        public string Senha { get; set; }
-
-        [Required(ErrorMessage = "Informe o nome")]
+        [Required(ErrorMessage = "Preencha o nome.")]
         public string Nome { get; set; }
 
-        public static UsuarioModel ValidarUsuario(string login, string senha)
+        public bool Ativo { get; set; }
+
+        public List<UsuarioModel> Usuarios { get; set; }
+
+        public PerfilModel()
         {
-            UsuarioModel ret = null;
+            Usuarios = new List<UsuarioModel>();
+        }
+
+        public static List<PerfilModel> RecuperarListaAtivos()
+        {
+            var ret = new List<PerfilModel>();
+
             using (var conexao = new SqlConnection())
             {
                 conexao.ConnectionString = ConfigurationManager.ConnectionStrings["principal"].ConnectionString;
                 conexao.Open();
                 using (var commando = new SqlCommand())
                 {
+
                     commando.Connection = conexao;
-                    commando.CommandText = "select * from usuario where login=@login and senha=@senha";
-
-                    commando.Parameters.Add("@login", SqlDbType.VarChar).Value = login;
-                    commando.Parameters.Add("@senha", SqlDbType.VarChar).Value = CriptoHelper.HashMD5(senha);
-
+                    commando.CommandText = "select * from perfil where ativo=1 order by nome";
                     var reader = commando.ExecuteReader();
-                    if (reader.Read())
+                    while (reader.Read())
                     {
-                        ret = new UsuarioModel
+                        ret.Add(new PerfilModel
                         {
                             Id = (int)reader["id"],
-                            login = (string)reader["login"],
-                            Senha = (string)reader["senha"],
-                            Nome = (string)reader["nome"]
-                        };
+                            Nome = (string)reader["nome"],
+                            Ativo = (bool)reader["ativo"]
+                        });
+                    }
+                }
+            }
+
+            return ret;
+        }
+
+        public static List<PerfilModel> RecuperarLista(int pagina, int tamPagina)
+        {
+            var ret = new List<PerfilModel>();
+
+            using (var conexao = new SqlConnection())
+            {
+                conexao.ConnectionString = ConfigurationManager.ConnectionStrings["principal"].ConnectionString;
+                conexao.Open();
+                using (var commando = new SqlCommand())
+                {
+                    var pos = (pagina - 1) * tamPagina;
+
+                    commando.Connection = conexao;
+                    commando.CommandText = string.Format(
+                        "select * from perfil  order by nome offset {0} rows fetch next {1} rows only",
+                        pos > 0 ? pos - 1 : 0, tamPagina);
+
+                    var reader = commando.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        ret.Add(new PerfilModel
+                        {
+                            Id = (int)reader["id"],
+                            Nome = (string)reader["nome"],
+                            Ativo = (bool)reader["ativo"]
+                        });
                     }
                 }
             }
@@ -63,7 +95,7 @@ namespace ControleEstoque.Models
                 using (var comando = new SqlCommand())
                 {
                     comando.Connection = conexao;
-                    comando.CommandText = "select count(*) from usuario";
+                    comando.CommandText = "select count(*) from perfil";
                     ret = (int)comando.ExecuteScalar();
                 }
             }
@@ -71,50 +103,9 @@ namespace ControleEstoque.Models
             return ret;
         }
 
-        public static List<UsuarioModel> RecuperarLista(int pagina = -1, int tamPagina = -1)
+        public static PerfilModel RecuperarPeloId(int id)
         {
-            var ret = new List<UsuarioModel>();
-
-            using (var conexao = new SqlConnection())
-            {
-                conexao.ConnectionString = ConfigurationManager.ConnectionStrings["principal"].ConnectionString;
-                conexao.Open();
-                using (var commando = new SqlCommand())
-                {
-                    var pos = (pagina - 1) * tamPagina;
-
-                    commando.Connection = conexao;
-
-                    if (pagina == -1 || tamPagina == -1)
-                    {
-                        commando.CommandText = "select * from usuario  order by nome";
-                    }
-                    else
-                    {
-                        commando.CommandText = string.Format(
-                            "select * from usuario  order by nome offset {0} rows fetch next {1} rows only",
-                            pos > 0 ? pos - 1 : 0, tamPagina);
-                    }
-                    
-                    var reader = commando.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        ret.Add(new UsuarioModel()
-                        {
-                            Id = (int)reader["id"],
-                            Nome = (string)reader["nome"],
-                            login = (string)reader["login"]
-                        });
-                    }
-                }
-            }
-
-            return ret;
-        }
-
-        public static UsuarioModel RecuperarPeloId(int id)
-        {
-            UsuarioModel ret = null;
+            PerfilModel ret = null;
 
             using (var conexao = new SqlConnection())
             {
@@ -123,18 +114,18 @@ namespace ControleEstoque.Models
                 using (var commando = new SqlCommand())
                 {
                     commando.Connection = conexao;
-                    commando.CommandText = "select * from usuario where (id = @id)";
+                    commando.CommandText = "select * from perfil where (id = @id)";
 
                     commando.Parameters.Add("@id", SqlDbType.Int).Value = id;
 
                     var reader = commando.ExecuteReader();
                     if (reader.Read())
                     {
-                        ret = new UsuarioModel()
+                        ret = new PerfilModel
                         {
                             Id = (int)reader["id"],
                             Nome = (string)reader["nome"],
-                            login = (string)reader["login"]
+                            Ativo = (bool)reader["ativo"]
                         };
                     }
                 }
@@ -156,7 +147,7 @@ namespace ControleEstoque.Models
                     using (var commando = new SqlCommand())
                     {
                         commando.Connection = conexao;
-                        commando.CommandText = "delete from usuario where (id = @id)";
+                        commando.CommandText = "delete from perfil where (id = @id)";
 
                         commando.Parameters.Add("@id", SqlDbType.Int).Value = id;
 
@@ -182,31 +173,19 @@ namespace ControleEstoque.Models
                     if (model == null)
                     {
                         commando.CommandText =
-                            "insert into usuario (nome,login,senha,) values (@nome, @login, @senha,); select convert(int, scope_identity()) ";
+                            "insert into perfil (nome, ativo) values (@nome, @ativo); select convert(int, scope_identity()) ";
 
                         commando.Parameters.Add("@nome", SqlDbType.VarChar).Value = Nome;
-                        commando.Parameters.Add("@login", SqlDbType.VarChar).Value = login;
-                        commando.Parameters.Add("@senha", SqlDbType.VarChar).Value = CriptoHelper.HashMD5(Senha);
-
+                        commando.Parameters.Add("@ativo", SqlDbType.Bit).Value = Ativo ? 1 : 0;
 
                         ret = (int)commando.ExecuteScalar();
                     }
                     else
                     {
-                        commando.CommandText =
-                            "update usuario set nome=@nome, login=@login" +
-                            (!string.IsNullOrEmpty(Senha) ? ", senha=@senha" : "") +
-                            " where id = @id ";
+                        commando.CommandText = "update perfil set nome=@nome, ativo=@ativo where id = @id ";
 
                         commando.Parameters.Add("@nome", SqlDbType.VarChar).Value = Nome;
-                        commando.Parameters.Add("@login", SqlDbType.VarChar).Value = login;
-
-
-                        if (!string.IsNullOrEmpty(Senha))
-                        {
-                            commando.Parameters.Add("@senha", SqlDbType.VarChar).Value = CriptoHelper.HashMD5(Senha);
-                        }
-
+                        commando.Parameters.Add("@ativo", SqlDbType.Bit).Value = Ativo ? 1 : 0;
                         commando.Parameters.Add("@id", SqlDbType.Int).Value = Id;
 
                         if (commando.ExecuteNonQuery() > 0)
@@ -220,10 +199,10 @@ namespace ControleEstoque.Models
             return ret;
         }
 
-        public string RecuperarStringNomePerfis()
+        public void CarregarUsuarios()
         {
-            var ret = string.Empty;
-
+            Usuarios.Clear();
+            
             using (var conexao = new SqlConnection())
             {
                 conexao.ConnectionString = ConfigurationManager.ConnectionStrings["principal"].ConnectionString;
@@ -232,21 +211,25 @@ namespace ControleEstoque.Models
                 {
                     commando.Connection = conexao;
                     commando.CommandText =
-                        "select p.nome " +
-                        "from perfil_usuario pu, perfil p "+
-                        "where (pu.id_usuario = @id_usuario) and (pu.id_perfil = p.id) and (p.ativo = 1)";
+                        "select u. * " +
+                        "from perfil_usuario pu, usuario u " +
+                        "where (pu.id_perfil = @id_perfil) and (pu.id_usuario = u.id)";
 
-                    commando.Parameters.Add("@id_usuario", SqlDbType.Int).Value = Id;
+                    commando.Parameters.Add("@id_perfil", SqlDbType.Int).Value = Id;
 
                     var reader = commando.ExecuteReader();
                     while (reader.Read())
                     {
-                        ret += (ret != string.Empty ? ";" : string.Empty) + (string)reader["nome"];
+                        Usuarios.Add(new UsuarioModel
+                        {
+                            Id = (int)reader["id"],
+                            Nome = (string)reader["nome"],
+                            login = (string)reader["login"]
+                        });
                     }
                 }
             }
 
-            return ret;
         }
     }
 }

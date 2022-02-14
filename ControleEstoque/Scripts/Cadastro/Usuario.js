@@ -15,7 +15,12 @@ function set_dados_grid(dados) {
 }
 
 function get_dados_incluir() {
-    return {Id: 0, Nome: '', Login:'', Senha:''};
+    return {
+        Id: 0,
+        Nome: '',
+        Login: '',
+        Senha: ''
+    };
 }
 
 
