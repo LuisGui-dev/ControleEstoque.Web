@@ -8,19 +8,6 @@ namespace ControleEstoque.Controllers
 {
     public class CadastroController : Controller
     {
-        
-        [Authorize]
-        public ActionResult MarcaProduto()
-        {
-            return View();
-        }
-
-        [Authorize]
-        public ActionResult LocalProduto()
-        {
-            return View();
-        }
-        
         [Authorize]
         public ActionResult Produto()
         {
