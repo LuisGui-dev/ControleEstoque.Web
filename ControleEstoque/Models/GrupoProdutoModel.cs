@@ -15,7 +15,7 @@ namespace ControleEstoque.Models
 
         public bool Ativo { get; set; }
 
-        public static List<GrupoProdutoModel> RecuperarLista(int pagina, int tamPagina)
+        public static List<GrupoProdutoModel> RecuperarLista(int pagina, int tamPagina, string filtro = "")
         {
             var ret = new List<GrupoProdutoModel>();
 
@@ -26,12 +26,21 @@ namespace ControleEstoque.Models
                 using (var commando = new SqlCommand())
                 {
                     var pos = (pagina - 1) * tamPagina;
-                    
+
+                    var filtroWhere = string.Empty;
+                    if (!string.IsNullOrEmpty(filtro))
+                    {
+                        filtroWhere = string.Format(" where lower(nome) like '%{0}%'", filtro.ToLower());
+                    }
                     commando.Connection = conexao;
                     commando.CommandText = string.Format(
-                        "select * from grupo_produto  order by nome offset {0} rows fetch next {1} rows only",
+                        "select *" +
+                        " from grupo_produto" +
+                         filtroWhere +
+                        " order by nome" +
+                        " offset {0} rows fetch next {1} rows only",
                         pos > 0 ? pos - 1 : 0, tamPagina);
-                    
+
                     var reader = commando.ExecuteReader();
                     while (reader.Read())
                     {
@@ -47,7 +56,7 @@ namespace ControleEstoque.Models
 
             return ret;
         }
-        
+
         public static int RecuperarQuantidade()
         {
             var ret = 0;
@@ -141,17 +150,17 @@ namespace ControleEstoque.Models
 
                         commando.Parameters.Add("@nome", SqlDbType.VarChar).Value = Nome;
                         commando.Parameters.Add("@ativo", SqlDbType.Bit).Value = Ativo ? 1 : 0;
-                        
+
                         ret = (int)commando.ExecuteScalar();
                     }
                     else
                     {
                         commando.CommandText = "update grupo_produto set nome=@nome, ativo=@ativo where id = @id ";
-                        
+
                         commando.Parameters.Add("@nome", SqlDbType.VarChar).Value = Nome;
                         commando.Parameters.Add("@ativo", SqlDbType.Bit).Value = Ativo ? 1 : 0;
                         commando.Parameters.Add("@id", SqlDbType.Int).Value = Id;
-                        
+
                         if (commando.ExecuteNonQuery() > 0)
                         {
                             ret = Id;

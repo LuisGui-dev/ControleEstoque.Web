@@ -29,9 +29,9 @@ namespace ControleEstoque.Controllers.Cadastro
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public JsonResult GrupoProdutoPagina(int pagina, int tamPag)
+        public JsonResult GrupoProdutoPagina(int pagina, int tamPag, string filtro)
         {
-            var lista = GrupoProdutoModel.RecuperarLista(pagina, tamPag);
+            var lista = GrupoProdutoModel.RecuperarLista(pagina, tamPag, filtro);
 
             return Json(lista);
         }
@@ -40,6 +40,7 @@ namespace ControleEstoque.Controllers.Cadastro
         [ValidateAntiForgeryToken]
         public JsonResult RecuperarGrupoProduto(int id)
         {
+            throw new Exception();
             return Json(GrupoProdutoModel.RecuperarPeloId(id));
         }
 

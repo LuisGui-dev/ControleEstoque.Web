@@ -32,7 +32,6 @@ namespace ControleEstoque.Models
                 conexao.Open();
                 using (var commando = new SqlCommand())
                 {
-
                     commando.Connection = conexao;
                     commando.CommandText = "select * from perfil where ativo=1 order by nome";
                     var reader = commando.ExecuteReader();
@@ -167,32 +166,77 @@ namespace ControleEstoque.Models
             {
                 conexao.ConnectionString = ConfigurationManager.ConnectionStrings["principal"].ConnectionString;
                 conexao.Open();
-                using (var commando = new SqlCommand())
+
+                using (var transacao = conexao.BeginTransaction())
                 {
-                    commando.Connection = conexao;
-                    if (model == null)
+                    using (var commando = new SqlCommand())
                     {
-                        commando.CommandText =
-                            "insert into perfil (nome, ativo) values (@nome, @ativo); select convert(int, scope_identity()) ";
-
-                        commando.Parameters.Add("@nome", SqlDbType.VarChar).Value = Nome;
-                        commando.Parameters.Add("@ativo", SqlDbType.Bit).Value = Ativo ? 1 : 0;
-
-                        ret = (int)commando.ExecuteScalar();
-                    }
-                    else
-                    {
-                        commando.CommandText = "update perfil set nome=@nome, ativo=@ativo where id = @id ";
-
-                        commando.Parameters.Add("@nome", SqlDbType.VarChar).Value = Nome;
-                        commando.Parameters.Add("@ativo", SqlDbType.Bit).Value = Ativo ? 1 : 0;
-                        commando.Parameters.Add("@id", SqlDbType.Int).Value = Id;
-
-                        if (commando.ExecuteNonQuery() > 0)
+                        commando.Connection = conexao;
+                        commando.Transaction = transacao;
+                        if (model == null)
                         {
-                            ret = Id;
+                            commando.CommandText =
+                                "insert into perfil (nome, ativo) values (@nome, @ativo); select convert(int, scope_identity()) ";
+
+                            commando.Parameters.Add("@nome", SqlDbType.VarChar).Value = Nome;
+                            commando.Parameters.Add("@ativo", SqlDbType.Bit).Value = Ativo ? 1 : 0;
+
+                            ret = (int)commando.ExecuteScalar();
+                        }
+                        else
+                        {
+                            commando.CommandText = "update perfil set nome=@nome, ativo=@ativo where id = @id ";
+
+                            commando.Parameters.Add("@nome", SqlDbType.VarChar).Value = Nome;
+                            commando.Parameters.Add("@ativo", SqlDbType.Bit).Value = Ativo ? 1 : 0;
+                            commando.Parameters.Add("@id", SqlDbType.Int).Value = Id;
+
+                            if (commando.ExecuteNonQuery() > 0)
+                            {
+                                ret = Id;
+                            }
                         }
                     }
+
+                    if (Usuarios != null && Usuarios.Count > 0)
+                    {
+                        using (var commandoExcluirPerefilUsuario = new SqlCommand())
+                        {
+                            commandoExcluirPerefilUsuario.Connection = conexao;
+                            commandoExcluirPerefilUsuario.Transaction = transacao;
+
+                            commandoExcluirPerefilUsuario.CommandText =
+                                "delete from perfil_usuario where (id_perfil = @id_perfil)";
+                            commandoExcluirPerefilUsuario.Parameters.Add("@id_perfil", SqlDbType.Int).Value = Id;
+                            commandoExcluirPerefilUsuario.Parameters.Add("@ativo", SqlDbType.Bit).Value = Ativo ? 1 : 0;
+
+                            commandoExcluirPerefilUsuario.ExecuteScalar();
+                        }
+
+                        if (Usuarios[0].Id != -1)
+                        {
+                            foreach (var usuario in Usuarios)
+                            {
+                                using (var commandoIncluirPerfilUsuario = new SqlCommand())
+                                {
+                                    commandoIncluirPerfilUsuario.Connection = conexao;
+                                    commandoIncluirPerfilUsuario.Transaction = transacao;
+
+                                    commandoIncluirPerfilUsuario.CommandText =
+                                        "insert into perfil_usuario (id_perfil, id_usuario) values (@id_perfil, @id_usuario)";
+                                    commandoIncluirPerfilUsuario.Parameters.Add("@id_perfil", SqlDbType.Int).Value = Id;
+                                    commandoIncluirPerfilUsuario.Parameters.Add("@ativo", SqlDbType.Bit).Value =
+                                        Ativo ? 1 : 0;
+                                    commandoIncluirPerfilUsuario.Parameters.Add("@id_usuario", SqlDbType.Int).Value =
+                                        usuario.Id;
+
+                                    commandoIncluirPerfilUsuario.ExecuteScalar();
+                                }
+                            }
+                        }
+                    }
+
+                    transacao.Commit();
                 }
             }
 
@@ -202,7 +246,7 @@ namespace ControleEstoque.Models
         public void CarregarUsuarios()
         {
             Usuarios.Clear();
-            
+
             using (var conexao = new SqlConnection())
             {
                 conexao.ConnectionString = ConfigurationManager.ConnectionStrings["principal"].ConnectionString;
@@ -229,7 +273,6 @@ namespace ControleEstoque.Models
                     }
                 }
             }
-
         }
     }
 }
