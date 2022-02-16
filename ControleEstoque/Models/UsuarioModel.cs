@@ -10,16 +10,16 @@ namespace ControleEstoque.Models
     public class UsuarioModel
     {
         public int Id { get; set; }
+        
+        [Required(ErrorMessage = "Informe o nome")]
+        public string Nome { get; set; }
 
         [Required(ErrorMessage = "Infome o login")]
         public string login { get; set; }
 
         [Required(ErrorMessage = "Informe a senha")]
         public string Senha { get; set; }
-
-        [Required(ErrorMessage = "Informe o nome")]
-        public string Nome { get; set; }
-
+        
         public static UsuarioModel ValidarUsuario(string login, string senha)
         {
             UsuarioModel ret = null;

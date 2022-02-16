@@ -5,9 +5,11 @@
 
 function formatar_mensagem_aviso(mensagens) {
     var ret = '';
+    
     for (var i = 0; i < mensagens.length; i++) {
         ret += '<li>' + mensagens[i] + '</li>';
     }
+    
     return '<ul>' + ret + '</ul>';
 }
 

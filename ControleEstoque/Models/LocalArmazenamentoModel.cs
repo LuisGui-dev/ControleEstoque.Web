@@ -34,7 +34,7 @@ namespace ControleEstoque.Models
             return ret;
         }
 
-        public static List<LocalArmazenamentoModel> RecuperarLista(int pagina, int tamPagina, string filtro = "")
+        public static List<LocalArmazenamentoModel> RecuperarLista(int pagina, int tamPagina)
         {
             var ret = new List<LocalArmazenamentoModel>();
 
@@ -45,18 +45,11 @@ namespace ControleEstoque.Models
                 using (var commando = new SqlCommand())
                 {
                     var pos = (pagina - 1) * tamPagina;
-
-                    var filtroWhere = string.Empty;
-                    if (!string.IsNullOrEmpty(filtro))
-                    {
-                        filtroWhere = string.Format(" where lower(nome) like '%{0}%'", filtro.ToLower());
-                    }
-
+                    
                     commando.Connection = conexao;
                     commando.CommandText = string.Format(
                         "select *" +
                         " from local_armazenamento" +
-                        filtroWhere +
                         " order by nome" +
                         " offset {0} rows fetch next {1} rows only",
                         pos > 0 ? pos - 1 : 0, tamPagina);
