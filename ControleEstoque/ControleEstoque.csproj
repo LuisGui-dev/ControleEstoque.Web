@@ -198,6 +198,7 @@
         <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
         <Content Include="Scripts\modernizr-2.8.3.js" />
         <Content Include="Scripts\mustache.js" />
+        <Content Include="Scripts\mustache.min.js" />
         <Content Include="Scripts\sweetalert2.min.js" />
         <Content Include="Views\Cadastro\Fornecedor.cshtml" />
         <Content Include="Views\Cadastro\MarcaProduto.cshtml" />

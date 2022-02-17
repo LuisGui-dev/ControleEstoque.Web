@@ -37,7 +37,6 @@
                     </tr>
                     </thead>
                     <tbody>
-                    @RenderSection("LinhaGrid", true)
                     </tbody>
                 </table>
                 <div id="mensagem_grid" @Html.Raw(lista != null && lista.Count > 0 ? "class=\"invisivel\"" : "")>
@@ -88,7 +87,7 @@
 
 @section scripts
 {
-    <script src="~/Scripts/mustache.js"></script>
+    <script src="~/Scripts/mustache.min.js"></script>
     <script src="~/Scripts/Cadastro/CadBasejs.js"></script>
     @RenderSection("Scripts", true)
 }

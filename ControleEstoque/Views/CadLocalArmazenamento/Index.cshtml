@@ -1,5 +1,4 @@
-﻿
-@model List<ControleEstoque.Models.LocalArmazenamentoModel>
+﻿@model List<ControleEstoque.Models.LocalArmazenamentoModel>
 @{
     Layout = "~/Views/Shared/_Cadastro.cshtml";
     ViewBag.Title = "Local de Armazenamento";
@@ -15,33 +14,6 @@
     <th>Nome</th>
     <th>Ativo</th>
     <th>Ação</th>
-}
-
-@section LinhaGrid {
-    @{
-        var linha = 0;
-        foreach (var item in Model)
-        {
-            linha++;
-            if (linha <= ViewBag.QuantMaxLinhasPorPagina)
-            {
-                var ativo = item.Ativo ? "SIM" : "NÃO";
-
-                <tr data-id="@item.Id">
-                    <td>@item.Nome</td>
-                    <td>@ativo</td>
-                    <td>
-                        <a class="btn btn-primary btn-alterar" role="button"><i class="glyphicon glyphicon-pencil"></i> Alterar</a>
-                        <a class="btn btn-danger btn-excluir" role="button"><i class="glyphicon glyphicon-trash"></i> Excluir</a>
-                    </td>
-                </tr>
-            }
-            else
-            {
-                break;
-            }
-        }
-    }
 }
 
 @section CamposCadastro {
@@ -71,6 +43,33 @@
             var url_tam_page_change = '@Url.Action("LocalArmazenamentoPagina", "CadLocalArmazenamento")';
             var url_filtro_change = '@Url.Action("LocalArmazenamentoPagina", "CadLocalArmazenamento")';
             var url_alterar = '@Url.Action("RecuperarLocalArmazenamento", "CadLocalArmazenamento")';
-        </script>
+            var linhas = [];
+                            
+           @{
+               var linha = 0;
+               foreach (var item in Model)
+               {
+                   linha++;
+                   if (linha <= ViewBag.QuantMaxLinhasPorPagina)
+                   {
+                       @:linhas.push(@Html.Raw(Json.Encode(item)));
+                   }
+                   else
+                   {
+                       break;
+                   }
+               }
+           } 
+    </script>
+    <script id="template-grid" type="x-tmpl-mustache">
+        <tr data-id="{{ Id }}">
+            <td>{{ Nome }}</td>
+            <td>{{ #Ativo }}SIM{{ /Ativo }}{{ ^Ativo }}NÃO{{ /Ativo }}</td>
+            <td>
+                <a class="btn btn-primary btn-alterar" role="button"><i class="glyphicon glyphicon-pencil"></i> Alterar</a>
+                <a class="btn btn-danger btn-excluir" role="button"><i class="glyphicon glyphicon-trash"></i> Excluir</a>
+            </td>
+        </tr>
+    </script>
     <script src="~/Scripts/Cadastro/LocalArmazenamento.js"></script>
 }
